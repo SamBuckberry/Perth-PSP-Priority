@@ -1,0 +1,37 @@
+# Data files (large, downloaded by ETL)
+data/
+*.pbf
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Node
+node_modules/
+frontend/dist/
+frontend/build/
+
+# Docker
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# GraphHopper graph cache
+graphhopper/graph-cache/

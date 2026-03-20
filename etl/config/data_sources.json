@@ -1,0 +1,67 @@
+{
+  "osm": {
+    "geofabrik_url": "https://download.geofabrik.de/australia-oceania/australia-latest.osm.pbf",
+    "description": "Geofabrik Australia OSM extract (PBF)",
+    "license": "ODbL 1.0"
+  },
+  "dot_ltcn": {
+    "dataset_page": "https://catalogue.data.wa.gov.au/dataset/long-term-cycle-network-ltcn-dot-035",
+    "shapefile_url": "https://catalogue.data.wa.gov.au/dataset/fde3bca4-2f82-402c-9f44-c34fbd8787d7/resource/40c190a2-3f82-474f-a722-72fe46aaeed2/download/ltcn_20251002.shp.zip",
+    "arcgis_rest": "https://public-services.slip.wa.gov.au/public/rest/services/SLIP_Public_Services/Infrastructure_and_Utilities/MapServer/52",
+    "crs": "EPSG:7844",
+    "license": "CC BY 4.0",
+    "key_fields": {
+      "hierarchy": "Primary Route / Secondary Route / Local Route",
+      "route_id": "Route identifier",
+      "ltcn_name": "Route name",
+      "lga_name": "Local government area"
+    }
+  },
+  "mrwa_road_network": {
+    "arcgis_rest": "https://gisservices.mainroads.wa.gov.au/arcgis/rest/services/OpenData/RoadAssets_DataPortal/MapServer/17",
+    "crs": "EPSG:4283",
+    "license": "CC BY 4.0",
+    "key_fields": {
+      "NETWORK_TYPE": "Includes 'Main Roads Controlled Path'",
+      "START_NODE_NO": "Start node reference",
+      "END_NODE_NO": "End node reference"
+    }
+  },
+  "mrwa_intersections": {
+    "arcgis_rest": "https://gisservices.mainroads.wa.gov.au/arcgis/rest/services/OpenData/RoadAssets_DataPortal/MapServer/6",
+    "crs": "EPSG:4283",
+    "license": "CC BY 4.0",
+    "key_fields": {
+      "NODE_TYPE": "Includes 'Principal Shared Path Node'"
+    }
+  },
+  "mrwa_crashes": {
+    "arcgis_rest": "https://gisservices.mainroads.wa.gov.au/arcgis/rest/services/OpenData/RoadSafety_DataPortal/MapServer/2",
+    "crs": "EPSG:4283",
+    "license": "CC BY 4.0",
+    "key_fields": {
+      "TOTAL_BIKE_INVOLVED": "Bike crash count",
+      "SEVERITY": "Crash severity",
+      "ACCIDENT_TYPE": "Crash type",
+      "CRASH_DATE": "Date of crash"
+    }
+  },
+  "mrwa_speed_zones": {
+    "arcgis_rest": "https://gisservices.mainroads.wa.gov.au/arcgis/rest/services/OpenData/RoadAssets_DataPortal/MapServer/9",
+    "crs": "EPSG:4283",
+    "key_fields": {
+      "SPEED_ZONE_SIGN_VALUE": "Posted speed limit"
+    }
+  },
+  "mrwa_road_hierarchy": {
+    "arcgis_rest": "https://gisservices.mainroads.wa.gov.au/arcgis/rest/services/OpenData/RoadAssets_DataPortal/MapServer/16",
+    "crs": "EPSG:4283",
+    "key_fields": {
+      "ROAD_HIERARCHY": "Road classification"
+    }
+  },
+  "mrwa_closures": {
+    "arcgis_rest": "https://gisservices.mainroads.wa.gov.au/arcgis/rest/services/TravelInformation/MapServer",
+    "description": "Roadworks and closures"
+  }
+}

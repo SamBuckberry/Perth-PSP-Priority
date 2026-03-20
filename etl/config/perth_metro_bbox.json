@@ -1,0 +1,10 @@
+{
+  "description": "Perth metro bounding box (approximate)",
+  "west": 115.65,
+  "south": -32.15,
+  "east": 116.05,
+  "north": -31.65,
+  "crs_routing": "EPSG:4326",
+  "crs_internal": "EPSG:7850",
+  "note": "EPSG:7850 = GDA2020 / MGA Zone 50 for metric spatial operations"
+}

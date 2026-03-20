@@ -1,0 +1,11 @@
+osmium==3.7.0
+osmnx==2.0.0
+geopandas==1.0.1
+fiona==1.10.1
+pyproj==3.7.0
+shapely==2.0.6
+psycopg2-binary==2.9.10
+sqlalchemy==2.0.36
+geoalchemy2==0.15.2
+requests==2.32.3
+numpy==2.1.3

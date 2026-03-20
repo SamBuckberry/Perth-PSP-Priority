@@ -1,0 +1,27 @@
+# GraphHopper configuration for Perth PSP-Priority Cycling Router
+
+graphhopper:
+  datareader.file: /graphhopper/data/perth-metro.osm.pbf
+
+  graph.location: /graphhopper/graph-cache
+
+  profiles:
+    - name: bike
+      vehicle: bike
+      weighting: custom
+      custom_model_files: [/graphhopper/custom_models/psp_priority.json]
+      turn_costs: false
+
+  # Encoded values needed for custom model
+  graph.encoded_values: road_class,road_environment,surface,smoothness,bike_access,roundabout
+
+  # Import settings
+  import.osm.ignored_highways: motorway,motorway_link
+
+  # Server settings
+  server:
+    application_connectors:
+      - type: http
+        port: 8989
+    request_log:
+      appenders: []
