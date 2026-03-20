@@ -1,0 +1,103 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-psp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-psp_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-perth_psp}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-psp}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  graphhopper:
+    image: israelhikingmap/graphhopper:latest
+    ports:
+      - "8989:8989"
+    volumes:
+      - ./graphhopper/config.yml:/graphhopper/config.yml
+      - ./graphhopper/custom_models:/graphhopper/custom_models
+      - ./data/osm:/graphhopper/data
+      - gh_cache:/graphhopper/graph-cache
+    environment:
+      JAVA_OPTS: "-Xmx2g -Xms512m"
+    command: ["java", "-Xmx2g", "-jar", "graphhopper-web.jar", "server", "config.yml"]
+    depends_on:
+      - postgres
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-psp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-psp_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-perth_psp}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      GRAPHHOPPER_URL: http://graphhopper:8989
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./api:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+  etl:
+    build:
+      context: ./etl
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-psp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-psp_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-perth_psp}
+      PERTH_BBOX_WEST: ${PERTH_BBOX_WEST:-115.65}
+      PERTH_BBOX_SOUTH: ${PERTH_BBOX_SOUTH:--32.15}
+      PERTH_BBOX_EAST: ${PERTH_BBOX_EAST:-116.05}
+      PERTH_BBOX_NORTH: ${PERTH_BBOX_NORTH:--31.65}
+    volumes:
+      - ./data:/data
+      - ./etl:/etl
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - etl
+
+volumes:
+  pgdata:
+  gh_cache:

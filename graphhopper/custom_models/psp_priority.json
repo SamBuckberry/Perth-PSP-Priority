@@ -1,0 +1,51 @@
+{
+  "priority": [
+    {
+      "if": "road_class == CYCLEWAY",
+      "multiply_by": 5.0
+    },
+    {
+      "if": "road_class == PATH",
+      "multiply_by": 3.0
+    },
+    {
+      "if": "road_class == TRACK",
+      "multiply_by": 2.5
+    },
+    {
+      "if": "road_class == RESIDENTIAL || road_class == LIVING_STREET",
+      "multiply_by": 1.2
+    },
+    {
+      "if": "road_class == TERTIARY",
+      "multiply_by": 0.8
+    },
+    {
+      "if": "road_class == SECONDARY",
+      "multiply_by": 0.5
+    },
+    {
+      "if": "road_class == PRIMARY",
+      "multiply_by": 0.3
+    },
+    {
+      "if": "road_class == TRUNK",
+      "multiply_by": 0.15
+    },
+    {
+      "if": "road_environment == FERRY",
+      "multiply_by": 0.1
+    }
+  ],
+  "speed": [
+    {
+      "if": "road_class == CYCLEWAY || road_class == PATH",
+      "limit_to": 22
+    },
+    {
+      "if": "true",
+      "limit_to": 18
+    }
+  ],
+  "distance_influence": 90
+}
