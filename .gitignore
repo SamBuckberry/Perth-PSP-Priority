@@ -35,3 +35,6 @@ Thumbs.db
 
 # GraphHopper graph cache
 graphhopper/graph-cache/
+
+# ETL caches
+etl/cache/
