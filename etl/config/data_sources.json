@@ -63,5 +63,71 @@
   "mrwa_closures": {
     "arcgis_rest": "https://gisservices.mainroads.wa.gov.au/arcgis/rest/services/TravelInformation/MapServer",
     "description": "Roadworks and closures"
+  },
+  "yourmove_council_maps": {
+    "index_url": "https://www.yourmove.org.au/resources/walk-wheel-ride-maps",
+    "license": "CC BY 4.0 (check each council map attribution)",
+    "metro_pdfs": [
+      {
+        "council": "armadale_gosnells",
+        "edition_year": 2024,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/f0a809da-d82c-4db7-98b6-6d4e42972b01/2024-Gosnells-and-Armadale-Walk-Wheel-Ride-map-WEB-FINAL.pdf",
+        "fallback_bbox": { "west": 115.86, "south": -32.28, "east": 116.09, "north": -31.92 }
+      },
+      {
+        "council": "belmont",
+        "edition_year": 2024,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/3059a881-62f9-4224-a020-694de79d06b3/2024-Belmont-Walk-Wheel-Ride-Map_WEB.pdf",
+        "fallback_bbox": { "west": 115.88, "south": -32.03, "east": 116.04, "north": -31.88 }
+      },
+      {
+        "council": "canning_vic_park",
+        "edition_year": 2023,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/2bfdfaba-f876-4406-ac79-592f8ae9cbf2/2023-Vic-Park-and-Canning-Walk-Wheel-Ride-map_WEB.pdf",
+        "fallback_bbox": { "west": 115.84, "south": -32.13, "east": 116.01, "north": -31.95 }
+      },
+      {
+        "council": "perth",
+        "edition_year": 2017,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/49e291c8-44fe-4df9-8b4c-c1208f1a443f/2017-City-of-Perth-Map-Your-Move-AT-FINAL.pdf",
+        "fallback_bbox": { "west": 115.80, "south": -32.00, "east": 115.91, "north": -31.90 }
+      },
+      {
+        "council": "subiaco",
+        "edition_year": 2019,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/28a8d8d4-29a1-481d-8721-4073b0812dc6/2019-Subiaco-public-transport,-walking-riding-guide.pdf",
+        "fallback_bbox": { "west": 115.79, "south": -32.01, "east": 115.87, "north": -31.93 }
+      },
+      {
+        "council": "vincent",
+        "edition_year": 2016,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/b6173efc-7129-42f0-b90e-ce40acb96700/2016-City-of-Vincent-Map-Your-Move-walk-bike.pdf",
+        "fallback_bbox": { "west": 115.81, "south": -31.98, "east": 115.89, "north": -31.90 }
+      },
+      {
+        "council": "melville",
+        "edition_year": 2017,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/5d82eff2-97e6-4d64-a66d-ea2d4b9ec584/2017-Melville-Public-Transport,-Walking-and-Riding-Guide.pdf",
+        "fallback_bbox": { "west": 115.75, "south": -32.10, "east": 115.90, "north": -31.97 }
+      },
+      {
+        "council": "south_perth",
+        "edition_year": 2014,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/b7a0fec7-6836-4bf3-adb3-192ebf158b35/2014-South-Perth-Map-Your-Move-AT-and-PT-WEB.pdf",
+        "fallback_bbox": { "west": 115.84, "south": -32.06, "east": 115.92, "north": -31.95 }
+      },
+      {
+        "council": "stirling_east",
+        "edition_year": 2020,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/2ab0f1e0-af5a-4506-b85e-1004e44276e6/2020-Stirling-East-Map-Your-Move-_WEB-FINAL.pdf",
+        "fallback_bbox": { "west": 115.79, "south": -31.95, "east": 115.90, "north": -31.82 }
+      },
+      {
+        "council": "stirling_west",
+        "edition_year": 2020,
+        "pdf_url": "https://www.yourmove.org.au/getmedia/9b353304-0213-4653-addf-de8c0164b370/2020-Stirling-West-Map-Your-Move_WEB-FINAL.pdf",
+        "fallback_bbox": { "west": 115.74, "south": -31.95, "east": 115.86, "north": -31.80 }
+      }
+    ]
   }
 }

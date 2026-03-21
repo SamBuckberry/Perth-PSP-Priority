@@ -7,21 +7,22 @@ graphhopper:
 
   profiles:
     - name: bike
-      vehicle: bike
-      weighting: custom
-      custom_model_files: [/graphhopper/custom_models/psp_priority.json]
-      turn_costs: false
+      custom_model_files: [psp_priority.json]
+
+  custom_models.directory: /graphhopper/custom_models
+  custom_areas.directory: /graphhopper/data/export/areas
+  profiles_ch: []
+  profiles_lm: []
 
   # Encoded values needed for custom model
-  graph.encoded_values: road_class,road_environment,surface,smoothness,bike_access,roundabout
+  graph.encoded_values: road_class,road_environment,surface,smoothness,bike_access,roundabout,osm_way_id
 
   # Import settings
   import.osm.ignored_highways: motorway,motorway_link
 
-  # Server settings
-  server:
-    application_connectors:
-      - type: http
-        port: 8989
-    request_log:
-      appenders: []
+server:
+  application_connectors:
+    - type: http
+      port: 8989
+  request_log:
+    appenders: []

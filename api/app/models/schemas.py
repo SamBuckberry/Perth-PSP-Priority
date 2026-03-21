@@ -9,8 +9,32 @@ class LatLon(BaseModel):
 
 class RoutePreferences(BaseModel):
     psp_priority: float = Field(0.95, ge=0.0, le=1.0, description="PSP preference weight (0=none, 1=max)")
+    psp_weight: Optional[float] = Field(
+        None, ge=0.0, le=100.0, description="Bike-path weighting slider value (0-100)"
+    )
+    routing_mode: str = Field(
+        "hard_psp_anchor",
+        pattern="^(weighted|hard_psp_anchor)$",
+        description="Routing strategy mode",
+    )
     avoid_busy_roads: bool = True
-    max_detour_ratio: float = Field(1.2, ge=1.0, le=2.0, description="Max detour vs shortest route")
+    max_detour_ratio: float = Field(1.25, ge=1.0, le=2.0, description="Max detour vs shortest route")
+    phase_search_radius_m: int = Field(
+        2500,
+        ge=200,
+        le=10000,
+        description="Anchor search radius for dedicated corridors in hard mode",
+    )
+    phase_candidate_limit: int = Field(
+        3,
+        ge=1,
+        le=8,
+        description="Candidate corridor anchors to evaluate in hard mode",
+    )
+    preferred_councils: list[str] = Field(
+        default_factory=list,
+        description="Preferred council overlays to favour for PSP anchor selection",
+    )
 
 
 class RouteRequest(BaseModel):
@@ -18,7 +42,7 @@ class RouteRequest(BaseModel):
     destination: LatLon
     waypoints: list[LatLon] = Field(default_factory=list)
     preferences: RoutePreferences = Field(default_factory=RoutePreferences)
-    alternatives: int = Field(1, ge=1, le=3)
+    alternatives: int = Field(1, ge=1, le=8)
     format: str = Field("geojson", pattern="^(geojson|gpx)$")
 
 
@@ -45,6 +69,7 @@ class RouteSegment(BaseModel):
     facility_class: str
     distance_m: float
     coordinates: list[list[float]]
+    source_hint: Optional[str] = None
 
 
 class RouteResponse(BaseModel):

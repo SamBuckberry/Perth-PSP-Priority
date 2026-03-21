@@ -15,7 +15,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [profile, setProfile] = useState<RouteProfile>('psp_priority')
   const [avoidBusyRoads, setAvoidBusyRoads] = useState(true)
-  const [detourLimit, setDetourLimit] = useState(1.2)
+  const [detourLimit, setDetourLimit] = useState(1.25)
   const [placingPoint, setPlacingPoint] = useState<'origin' | 'destination' | null>('origin')
 
   const handleMapClick = useCallback((latlng: LatLon) => {

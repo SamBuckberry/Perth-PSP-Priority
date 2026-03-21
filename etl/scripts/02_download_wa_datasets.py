@@ -4,6 +4,7 @@ import json
 import os
 import urllib.request
 import zipfile
+from typing import Optional
 
 import requests
 
@@ -44,7 +45,7 @@ def download_ltcn_shapefile():
     return ltcn_dir
 
 
-def query_arcgis_layer(base_url: str, where: str = "1=1", bbox: dict | None = None,
+def query_arcgis_layer(base_url: str, where: str = "1=1", bbox: Optional[dict] = None,
                         out_fields: str = "*", max_records: int = 2000) -> list[dict]:
     """Query an ArcGIS REST MapServer layer with pagination."""
     all_features = []

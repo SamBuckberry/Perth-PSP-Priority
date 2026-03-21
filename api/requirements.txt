@@ -2,7 +2,7 @@ fastapi==0.115.6
 uvicorn[standard]==0.34.0
 httpx==0.28.1
 gpxpy==1.6.2
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.11
 sqlalchemy==2.0.36
 geoalchemy2==0.15.2
 shapely==2.0.6

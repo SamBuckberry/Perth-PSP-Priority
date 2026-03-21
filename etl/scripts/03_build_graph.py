@@ -102,6 +102,8 @@ def classify_osm_tags(row) -> str:
 def load_to_postgis(nodes_gdf: gpd.GeoDataFrame, edges_gdf: gpd.GeoDataFrame):
     """Load nodes and edges into PostGIS."""
     engine = create_engine(DB_URL)
+    with engine.begin() as conn:
+        conn.execute(text("TRUNCATE TABLE edge, node RESTART IDENTITY CASCADE"))
 
     print("Loading nodes into PostGIS...")
     # Prepare nodes
@@ -118,6 +120,9 @@ def load_to_postgis(nodes_gdf: gpd.GeoDataFrame, edges_gdf: gpd.GeoDataFrame):
     print("Loading edges into PostGIS...")
     # Prepare edges
     edges_df = edges_gdf.reset_index()
+    edges_df["osmid"] = edges_df["osmid"].apply(
+        lambda value: value[0] if isinstance(value, list) and value else value
+    )
 
     # Calculate length in metres
     edges_df["length_m"] = edges_df.geometry.length

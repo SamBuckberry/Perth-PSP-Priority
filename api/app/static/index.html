@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perth PSP Priority MVP</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #0f172a;
+      }
+      .layout {
+        display: flex;
+        height: 100vh;
+      }
+      .panel {
+        width: 360px;
+        border-right: 1px solid #e2e8f0;
+        padding: 16px;
+        box-sizing: border-box;
+        background: #f8fafc;
+      }
+      .panel h1 {
+        font-size: 20px;
+        margin: 0 0 6px;
+      }
+      .panel p {
+        margin: 0 0 12px;
+        color: #475569;
+        font-size: 14px;
+      }
+      .meta {
+        font-size: 13px;
+        margin: 10px 0;
+        padding: 10px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+      }
+      .buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .buttons.wrap {
+        flex-wrap: wrap;
+      }
+      button {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 10px 12px;
+        cursor: pointer;
+      }
+      button.active-preset {
+        border-color: #0f766e;
+        background: #ecfeff;
+      }
+      button.primary {
+        background: #059669;
+        border-color: #059669;
+        color: #ffffff;
+      }
+      .control {
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #ffffff;
+        font-size: 13px;
+      }
+      .control label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      .control input[type="range"] {
+        width: 100%;
+      }
+      .control select {
+        width: 100%;
+        min-height: 88px;
+      }
+      #map {
+        flex: 1;
+      }
+      .status {
+        font-size: 13px;
+        margin-top: 10px;
+        min-height: 18px;
+      }
+      .warn {
+        color: #b45309;
+      }
+      .error {
+        color: #b91c1c;
+      }
+      code {
+        background: #e2e8f0;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel">
+        <h1>Perth PSP Router MVP</h1>
+        <p>Click map to set A then B. Route call uses <code>/v1/route</code>.</p>
+
+        <div class="meta"><strong>A:</strong> <span id="origin">not set</span></div>
+        <div class="meta"><strong>B:</strong> <span id="destination">not set</span></div>
+
+        <div class="meta">
+          <div><strong>Distance:</strong> <span id="distance">-</span></div>
+          <div><strong>Time:</strong> <span id="time">-</span></div>
+          <div><strong>PSP share:</strong> <span id="psp">-</span></div>
+        </div>
+
+        <div class="control">
+          <label>Quick mode</label>
+          <div class="buttons wrap">
+            <button id="presetRoad" type="button">Road-leaning</button>
+            <button id="presetBalanced" type="button">Balanced</button>
+            <button id="presetPspMax" type="button">PSP-max</button>
+          </div>
+        </div>
+
+        <div class="control">
+          <label for="pathWeight">Bike-path weighting: <span id="pathWeightValue">100</span></label>
+          <input id="pathWeight" type="range" min="0" max="100" step="1" value="100" />
+        </div>
+
+        <div class="control">
+          <label>Manual PSP corridor point</label>
+          <div class="buttons wrap">
+            <button id="setViaBtn" type="button">Set PSP via-point</button>
+            <button id="clearViaBtn" type="button">Clear via-point</button>
+          </div>
+          <div style="margin-top: 6px"><strong>P:</strong> <span id="viaPointText">not set</span></div>
+        </div>
+
+        <div class="control">
+          <label for="councilSelect">Preferred council overlays</label>
+          <select id="councilSelect" multiple></select>
+        </div>
+
+        <div class="buttons">
+          <button class="primary" id="routeBtn">Calculate route</button>
+          <button id="resetBtn">Reset</button>
+        </div>
+
+        <div class="buttons">
+          <button id="gpxBtn" disabled>Download GPX</button>
+          <button id="geoBtn" disabled>Download GeoJSON</button>
+        </div>
+
+        <div class="status" id="status"></div>
+      </aside>
+      <div id="map"></div>
+    </div>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script>
+      const map = L.map("map").setView([-31.9505, 115.8605], 12);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(map);
+
+      let origin = null;
+      let destination = null;
+      let routeLayer = null;
+      let markerA = null;
+      let markerB = null;
+      let markerVia = null;
+      let lastRouteId = null;
+      let viaPoint = null;
+      let awaitingViaPoint = false;
+
+      const originText = document.getElementById("origin");
+      const destinationText = document.getElementById("destination");
+      const distanceText = document.getElementById("distance");
+      const timeText = document.getElementById("time");
+      const pspText = document.getElementById("psp");
+      const statusText = document.getElementById("status");
+      const gpxBtn = document.getElementById("gpxBtn");
+      const geoBtn = document.getElementById("geoBtn");
+      const routeBtn = document.getElementById("routeBtn");
+      const setViaBtn = document.getElementById("setViaBtn");
+      const clearViaBtn = document.getElementById("clearViaBtn");
+      const viaPointText = document.getElementById("viaPointText");
+      const councilSelect = document.getElementById("councilSelect");
+      const pathWeightSlider = document.getElementById("pathWeight");
+      const pathWeightValue = document.getElementById("pathWeightValue");
+      const presetRoad = document.getElementById("presetRoad");
+      const presetBalanced = document.getElementById("presetBalanced");
+      const presetPspMax = document.getElementById("presetPspMax");
+      let pathWeight = 100;
+
+      function llText(p) {
+        return `${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}`;
+      }
+
+      function setStatus(message, cls = "") {
+        statusText.className = `status ${cls}`.trim();
+        statusText.textContent = message;
+      }
+
+      function refreshPresetUi() {
+        const setActive = (element, active) => {
+          if (active) {
+            element.classList.add("active-preset");
+          } else {
+            element.classList.remove("active-preset");
+          }
+        };
+        setActive(presetRoad, pathWeight <= 40);
+        setActive(presetBalanced, pathWeight > 40 && pathWeight < 85);
+        setActive(presetPspMax, pathWeight >= 85);
+      }
+
+      function setPathWeight(value) {
+        pathWeight = Number(value);
+        pathWeightSlider.value = String(pathWeight);
+        pathWeightValue.textContent = String(pathWeight);
+        refreshPresetUi();
+      }
+
+      presetRoad.addEventListener("click", () => setPathWeight(25));
+      presetBalanced.addEventListener("click", () => setPathWeight(60));
+      presetPspMax.addEventListener("click", () => setPathWeight(100));
+      pathWeightSlider.addEventListener("input", (e) => setPathWeight(e.target.value));
+      setPathWeight(pathWeight);
+
+      async function loadCouncilOptions() {
+        try {
+          const response = await fetch("/v1/councils");
+          if (!response.ok) return;
+          const data = await response.json();
+          for (const name of data.items || []) {
+            const opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = name;
+            councilSelect.appendChild(opt);
+          }
+        } catch (err) {
+          // Keep UI functional even if council list endpoint is unavailable.
+        }
+      }
+      loadCouncilOptions();
+
+      setViaBtn.addEventListener("click", () => {
+        awaitingViaPoint = true;
+        setStatus("Click map to set manual PSP via-point.");
+      });
+      clearViaBtn.addEventListener("click", () => {
+        viaPoint = null;
+        viaPointText.textContent = "not set";
+        awaitingViaPoint = false;
+        if (markerVia) map.removeLayer(markerVia);
+        markerVia = null;
+        setStatus("Manual PSP via-point cleared.");
+      });
+
+      map.on("click", (e) => {
+        const p = { lat: e.latlng.lat, lon: e.latlng.lng };
+        if (awaitingViaPoint) {
+          viaPoint = p;
+          viaPointText.textContent = llText(p);
+          awaitingViaPoint = false;
+          if (markerVia) map.removeLayer(markerVia);
+          markerVia = L.marker([p.lat, p.lon]).addTo(map).bindPopup("PSP via");
+          setStatus("Manual PSP via-point set.");
+          return;
+        }
+        if (!origin) {
+          origin = p;
+          if (markerA) map.removeLayer(markerA);
+          markerA = L.marker([p.lat, p.lon]).addTo(map).bindPopup("A");
+          originText.textContent = llText(p);
+          setStatus("Origin set. Click to set destination.");
+          return;
+        }
+        if (!destination) {
+          destination = p;
+          if (markerB) map.removeLayer(markerB);
+          markerB = L.marker([p.lat, p.lon]).addTo(map).bindPopup("B");
+          destinationText.textContent = llText(p);
+          setStatus("Destination set. Calculate route.");
+        }
+      });
+
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        origin = null;
+        destination = null;
+        lastRouteId = null;
+        if (markerA) map.removeLayer(markerA);
+        if (markerB) map.removeLayer(markerB);
+        if (markerVia) map.removeLayer(markerVia);
+        if (routeLayer) map.removeLayer(routeLayer);
+        markerA = null;
+        markerB = null;
+        markerVia = null;
+        viaPoint = null;
+        awaitingViaPoint = false;
+        routeLayer = null;
+        originText.textContent = "not set";
+        destinationText.textContent = "not set";
+        viaPointText.textContent = "not set";
+        distanceText.textContent = "-";
+        timeText.textContent = "-";
+        pspText.textContent = "-";
+        gpxBtn.disabled = true;
+        geoBtn.disabled = true;
+        setStatus("Reset complete.");
+      });
+
+      routeBtn.addEventListener("click", async () => {
+        if (!origin || !destination) {
+          setStatus("Set both origin and destination first.", "error");
+          return;
+        }
+
+        setStatus("Calculating route...");
+        routeBtn.disabled = true;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 45000);
+        try {
+          const response = await fetch("/v1/route", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify({
+              origin,
+              destination,
+              waypoints: viaPoint ? [viaPoint] : [],
+              preferences: {
+                psp_priority: pathWeight / 100,
+                psp_weight: pathWeight,
+                routing_mode: "hard_psp_anchor",
+                avoid_busy_roads: true,
+                max_detour_ratio: 1.25,
+                phase_search_radius_m: 2500,
+                phase_candidate_limit: 1,
+                preferred_councils: Array.from(councilSelect.selectedOptions).map((opt) => opt.value),
+              },
+              alternatives: 1,
+              format: "geojson",
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(await response.text());
+          }
+
+          const data = await response.json();
+          lastRouteId = data.route_id;
+          const coords = data.geometry.coordinates.map((c) => [c[1], c[0]]);
+
+          if (routeLayer) map.removeLayer(routeLayer);
+          routeLayer = L.polyline(coords, { color: "#059669", weight: 5 }).addTo(map);
+          map.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+
+          distanceText.textContent = `${(data.summary.distance_m / 1000).toFixed(2)} km`;
+          timeText.textContent = `${Math.round(data.summary.estimated_time_min)} min`;
+          pspText.textContent = `${Math.round(data.summary.psp_share * 100)}%`;
+          gpxBtn.disabled = false;
+          geoBtn.disabled = false;
+
+          if (data.warnings && data.warnings.length > 0) {
+            setStatus(data.warnings.map((w) => w.message).join(" "), "warn");
+          } else {
+            setStatus("Route ready.");
+          }
+        } catch (err) {
+          if (err.name === "AbortError") {
+            setStatus("Route timed out after 45s. Try a shorter trip or lower weighting.", "error");
+          } else {
+            setStatus(`Route failed: ${err.message}`, "error");
+          }
+        } finally {
+          clearTimeout(timeout);
+          routeBtn.disabled = false;
+        }
+      });
+
+      gpxBtn.addEventListener("click", () => {
+        if (!lastRouteId) return;
+        window.open(`/v1/route/${lastRouteId}.gpx`, "_blank");
+      });
+
+      geoBtn.addEventListener("click", () => {
+        if (!lastRouteId) return;
+        window.open(`/v1/route/${lastRouteId}.geojson`, "_blank");
+      });
+    </script>
+  </body>
+</html>

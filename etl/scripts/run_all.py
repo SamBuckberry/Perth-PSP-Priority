@@ -1,13 +1,18 @@
 """Run the full ETL pipeline."""
 
-from scripts import (
-    # Step 1 and 2 can be run independently
-)
-from scripts.01_download_osm import main as download_osm
-from scripts.02_download_wa_datasets import main as download_wa
-from scripts.03_build_graph import main as build_graph
-from scripts.04_classify_edges import main as classify_edges
-from scripts.05_export_router_data import main as export_data
+from pathlib import Path
+import runpy
+
+
+SCRIPTS = [
+    ("01_download_osm.py", "Downloading OSM data"),
+    ("02_download_wa_datasets.py", "Downloading WA government datasets"),
+    ("06_download_council_maps.py", "Downloading council bike map PDFs"),
+    ("07_extract_council_map_network.py", "Extracting council bike network overlays"),
+    ("03_build_graph.py", "Building cycling graph"),
+    ("04_classify_edges.py", "Classifying PSP edges"),
+    ("05_export_router_data.py", "Exporting router data"),
+]
 
 
 def main():
@@ -15,20 +20,13 @@ def main():
     print("Perth PSP-Priority ETL Pipeline")
     print("=" * 60)
 
-    print("\n[1/5] Downloading OSM data...")
-    download_osm()
+    scripts_dir = Path(__file__).resolve().parent
+    total = len(SCRIPTS)
 
-    print("\n[2/5] Downloading WA government datasets...")
-    download_wa()
-
-    print("\n[3/5] Building cycling graph...")
-    build_graph()
-
-    print("\n[4/5] Classifying PSP edges...")
-    classify_edges()
-
-    print("\n[5/5] Exporting router data...")
-    export_data()
+    for idx, (filename, description) in enumerate(SCRIPTS, start=1):
+        script_path = scripts_dir / filename
+        print(f"\n[{idx}/{total}] {description}...")
+        runpy.run_path(str(script_path), run_name="__main__")
 
     print("\n" + "=" * 60)
     print("ETL pipeline complete!")
